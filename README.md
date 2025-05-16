@@ -1,12 +1,12 @@
 # Auth Service
 
-Authentication and authorization service with OAuth (Google, Steam) and JWT support.
+Authentication and authorization service with OAuth (Google) and JWT support.
 
 ## Description
 
 The service provides API for:
 - User registration and login
-- OAuth authentication via Google and Steam
+- OAuth authentication via Google
 - JWT token management
 - Service health monitoring
 
@@ -94,11 +94,6 @@ Content-Type: application/json
 #### Google OAuth
 ```http
 GET /auth/google
-```
-
-#### Steam OAuth
-```http
-GET /auth/steam
 ```
 
 #### Token Refresh
