@@ -5,11 +5,14 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { User } from './users/entities/user.entity';
+import { LoggerModule } from './logger/logger.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: `.env.${process.env.NODE_ENV || 'development'}`,
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -21,7 +24,8 @@ import { User } from './users/entities/user.entity';
         password: configService.get('DATABASE_PASSWORD'),
         database: configService.get('DATABASE_NAME'),
         entities: [User],
-        synchronize: true, // Set to false in production
+        synchronize: false,
+        logging: process.env.NODE_ENV !== 'production',
       }),
       inject: [ConfigService],
     }),
@@ -29,6 +33,8 @@ import { User } from './users/entities/user.entity';
       ttl: 60,
       limit: 10,
     }]),
+    LoggerModule,
+    HealthModule,
     AuthModule,
     UsersModule,
   ],
