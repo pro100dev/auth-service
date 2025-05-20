@@ -21,7 +21,7 @@ COPY package*.json ./
 
 RUN npm install && \
     apt-get update && \
-    apt-get install -y netcat-traditional && \
+    apt-get install -y netcat-traditional procps && \
     rm -rf /var/lib/apt/lists/*
 
 COPY . .
@@ -40,7 +40,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install --only=production && \
     apt-get update && \
-    apt-get install -y netcat-traditional && \
+    apt-get install -y netcat-traditional procps && \
     rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /app/dist ./dist

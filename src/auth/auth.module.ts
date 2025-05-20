@@ -26,11 +26,11 @@ import { UsersModule } from '../users/users.module';
 
         return {
           secret,
-          signOptions: {
+        signOptions: {
             expiresIn,
           },
         };
-      },
+        },
       inject: [ConfigService],
     }),
   ],

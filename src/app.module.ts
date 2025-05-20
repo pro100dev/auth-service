@@ -32,15 +32,15 @@ import { HealthModule } from './health/health.module';
         });
 
         return {
-          type: 'postgres',
-          host: configService.get('DATABASE_HOST'),
-          port: configService.get('DATABASE_PORT'),
-          username: configService.get('DATABASE_USERNAME'),
-          password: configService.get('DATABASE_PASSWORD'),
-          database: configService.get('DATABASE_NAME'),
-          entities: [User],
-          synchronize: false,
-          logging: process.env.NODE_ENV !== 'production',
+        type: 'postgres',
+        host: configService.get('DATABASE_HOST'),
+        port: configService.get('DATABASE_PORT'),
+        username: configService.get('DATABASE_USERNAME'),
+        password: configService.get('DATABASE_PASSWORD'),
+        database: configService.get('DATABASE_NAME'),
+        entities: [User],
+        synchronize: false,
+        logging: process.env.NODE_ENV !== 'production',
           ssl: process.env.NODE_ENV === 'production' ? {
             rejectUnauthorized: false
           } : false,

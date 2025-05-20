@@ -26,7 +26,7 @@ export class UsersService {
         throw new ConflictException('User with this email already exists');
       }
 
-      const user = this.usersRepository.create(userData);
+    const user = this.usersRepository.create(userData);
       const savedUser = await queryRunner.manager.save(user);
       await queryRunner.commitTransaction();
       return savedUser;
