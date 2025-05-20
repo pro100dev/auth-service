@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, DataSource } from 'typeorm';
 import { User } from './entities/user.entity';
 
 @Injectable()
@@ -8,11 +8,34 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+    private dataSource: DataSource,
   ) {}
 
   async create(userData: Partial<User>): Promise<User> {
-    const user = this.usersRepository.create(userData);
-    return this.usersRepository.save(user);
+    if (!userData.email) {
+      throw new Error('Email is required');
+    }
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const existingUser = await this.findByEmail(userData.email);
+      if (existingUser) {
+        throw new ConflictException('User with this email already exists');
+      }
+
+      const user = this.usersRepository.create(userData);
+      const savedUser = await queryRunner.manager.save(user);
+      await queryRunner.commitTransaction();
+      return savedUser;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   async findById(id: string): Promise<User> {
@@ -34,11 +57,46 @@ export class UsersService {
   }
 
   async updateRefreshToken(id: string, refreshToken: string): Promise<void> {
-    await this.usersRepository.update(id, { refreshToken });
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      await queryRunner.manager.update(User, id, { refreshToken });
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   async updateProfile(id: string, userData: Partial<User>): Promise<User> {
-    await this.usersRepository.update(id, userData);
-    return this.findById(id);
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      if (userData.email) {
+        const existingUser = await this.findByEmail(userData.email);
+        if (existingUser && existingUser.id !== id) {
+          throw new ConflictException('User with this email already exists');
+        }
+      }
+
+      await queryRunner.manager.update(User, id, userData);
+      const updatedUser = await queryRunner.manager.findOne(User, { where: { id } });
+      if (!updatedUser) {
+        throw new NotFoundException(`User with ID ${id} not found`);
+      }
+      await queryRunner.commitTransaction();
+      return updatedUser;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
   }
 } 
