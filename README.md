@@ -1,24 +1,16 @@
 # Auth Service
 
-Authentication and authorization service with OAuth (Google) and JWT support.
-
-## Description
-
-The service provides API for:
-- User registration and login
-- OAuth authentication via Google
-- JWT token management
-- Service health monitoring
+Authentication and authorization service with JWT and OAuth2 support.
 
 ## Requirements
 
-- Node.js 18+
+- Node.js 20+
 - PostgreSQL 15+
 - Docker and Docker Compose (optional)
 
 ## Installation and Setup
 
-### Local Development
+### Local Installation
 
 1. Clone the repository:
 ```bash
@@ -31,168 +23,118 @@ cd auth-service
 npm install
 ```
 
-3. Create environment files:
-```bash
-cp .env.example .env.development
+3. Create `.env` file in the project root:
+```env
+# Database
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+DATABASE_USERNAME=postgres
+DATABASE_PASSWORD=postgres
+DATABASE_NAME=auth_service
+
+# JWT
+JWT_SECRET=your-secret-key
+JWT_EXPIRES_IN=3600
+JWT_REFRESH_EXPIRES_IN=604800
+
+# OAuth2
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+GOOGLE_CALLBACK_URL=http://localhost:3000/auth/google/callback
+
+# Application
+PORT=3000
+NODE_ENV=development
 ```
 
-4. Start the database:
-```bash
-docker-compose up -d postgres
-```
-
-5. Run migrations:
+4. Run migrations:
 ```bash
 npm run migration:run
 ```
 
-6. Start the service:
+5. Start the application:
 ```bash
+# Development mode
 npm run start:dev
+
+# Production mode
+npm run start:prod
 ```
 
-### Production Deployment
+### Docker Setup
 
-1. Create `.env.production` file with production settings
-2. Build the application:
+1. Clone the repository:
 ```bash
-npm run build
+git clone <repository-url>
+cd auth-service
 ```
 
-3. Start using Docker Compose:
+2. Create `.env` file (see example above)
+
+3. Start the application:
+
 ```bash
-docker-compose -f docker-compose.yml up -d
+# Development mode (with hot-reload)
+docker-compose up --build
+
+# Production mode
+NODE_ENV=production docker-compose up --build
 ```
 
-## API Documentation
+The application will be available at: http://localhost:3000
 
-### Authentication
-
-#### Registration
-```http
-POST /auth/register
-Content-Type: application/json
-
-{
-  "email": "user@example.com",
-  "password": "securepassword",
-  "nickname": "username"
-}
-```
-
-#### Login
-```http
-POST /auth/login
-Content-Type: application/json
-
-{
-  "email": "user@example.com",
-  "password": "securepassword"
-}
-```
-
-#### Google OAuth
-```http
-GET /auth/google
-```
-
-#### Token Refresh
-```http
-POST /auth/refresh
-Content-Type: application/json
-
-{
-  "userId": "user-id",
-  "refreshToken": "refresh-token"
-}
-```
-
-#### Get Profile
-```http
-GET /auth/profile
-Authorization: Bearer <access-token>
-```
-
-### Monitoring
-
-#### Health Check
-```http
-GET /health
-```
-Checks service status, database connection, and system resources.
-
-#### Metrics
-```http
-GET /metrics
-```
-Returns basic service metrics:
-- Uptime
-- Request count
-- Memory usage
-- CPU usage
-
-## Monitoring
-
-### Logs
-
-Logs are stored in the `logs/` directory:
-- `error-YYYY-MM-DD.log` - error logs
-- `combined-YYYY-MM-DD.log` - all logs
-
-### Metrics
-
-The service provides basic metrics via the `/metrics` endpoint. For comprehensive monitoring, it's recommended to:
-
-1. Set up metric collection in Prometheus
-2. Configure visualization in Grafana
-3. Set up alerts for critical events
-
-### Health Checks
-
-The `/health` endpoint checks:
-- Database availability
-- Disk space usage
-- Memory usage
-- Overall service status
-
-## Security
-
-- All passwords are hashed using bcrypt
-- JWT tokens have limited lifetime
-- DDoS protection through rate limiting
-- Secure headers configured via Helmet
-- CORS configured to prevent unwanted requests
-
-## Development
-
-### Project Structure
+## Project Structure
 
 ```
 src/
-├── auth/           # Authentication module
-├── users/          # Users module
-├── health/         # Monitoring module
-├── logger/         # Logging module
-└── app.module.ts   # Main module
+├── auth/                 # Authentication module
+│   ├── auth.controller.ts
+│   ├── auth.service.ts
+│   └── auth.module.ts
+├── users/               # Users module
+│   ├── users.controller.ts
+│   ├── users.service.ts
+│   └── users.module.ts
+├── common/              # Common utilities and decorators
+├── config/              # Application configuration
+└── main.ts             # Entry point
 ```
 
-### Commands
+## API Endpoints
+
+### Authentication
+
+- `POST /auth/register` - Register a new user
+- `POST /auth/login` - Login to the system
+- `POST /auth/refresh` - Refresh token
+- `GET /auth/google` - Google OAuth authentication
+- `GET /auth/google/callback` - Google OAuth callback
+
+### Users
+
+- `GET /users/me` - Get current user information
+- `PATCH /users/me` - Update user information
+- `DELETE /users/me` - Delete user
+
+## Development
+
+### Running Tests
 
 ```bash
-# Start in development mode
-npm run start:dev
-
-# Run tests
+# Unit tests
 npm run test
 
-# Lint check
+# E2E tests
+npm run test:e2e
+
+# Test coverage
+npm run test:cov
+```
+
+### Linting
+
+```bash
 npm run lint
-
-# Create migration
-npm run migration:create
-
-# Run migrations
-npm run migration:run
 ```
 
 ## License
