@@ -2,13 +2,15 @@ version: '3.8'
 
 services:
   auth-service:
-    build: .
+    build:
+      context: .
+      target: ${NODE_ENV:-development}
     ports:
       - "3000:3000"
     env_file:
       - .env
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=${NODE_ENV:-development}
     depends_on:
       - postgres
 
