@@ -33,14 +33,19 @@ DATABASE_PASSWORD=postgres
 DATABASE_NAME=auth_service
 
 # JWT
-JWT_SECRET=your-secret-key
+JWT_SECRET=your_jwt_secret
 JWT_EXPIRES_IN=3600
+JWT_REFRESH_SECRET=your_jwt_refresh_secret
 JWT_REFRESH_EXPIRES_IN=604800
 
-# OAuth2
-GOOGLE_CLIENT_ID=your-google-client-id
-GOOGLE_CLIENT_SECRET=your-google-client-secret
-GOOGLE_CALLBACK_URL=http://localhost:3000/auth/google/callback
+# Google OAuth
+GOOGLE_CLIENT_ID=change-in-production
+GOOGLE_CLIENT_SECRET=change-in-production
+GOOGLE_CALLBACK_URL=https://your-domain.com/auth/google/callback
+
+# Rate Limiting
+THROTTLE_TTL=60
+THROTTLE_LIMIT=10
 
 # Application
 PORT=3000

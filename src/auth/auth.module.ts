@@ -17,20 +17,20 @@ import { UsersModule } from '../users/users.module';
       useFactory: async (configService: ConfigService) => {
         const secret = configService.get<string>('JWT_SECRET');
         const expiresIn = configService.get<string>('JWT_EXPIRES_IN');
-        
+
         console.log('JWT Configuration:', {
           secret,
           expiresIn,
-          type: typeof expiresIn
+          type: typeof expiresIn,
         });
 
         return {
           secret,
-        signOptions: {
+          signOptions: {
             expiresIn,
           },
         };
-        },
+      },
       inject: [ConfigService],
     }),
   ],
@@ -38,4 +38,4 @@ import { UsersModule } from '../users/users.module';
   providers: [AuthService, GoogleStrategy, JwtStrategy],
   exports: [AuthService],
 })
-export class AuthModule {} 
+export class AuthModule {}

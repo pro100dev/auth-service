@@ -1,5 +1,19 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, Index, VersionColumn } from 'typeorm';
-import { IsEmail, IsString, MinLength, IsOptional, IsUrl } from 'class-validator';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  Index,
+  VersionColumn,
+} from 'typeorm';
+import {
+  IsEmail,
+  IsString,
+  MinLength,
+  IsOptional,
+  IsUrl,
+} from 'class-validator';
 
 @Entity('users')
 export class User {
@@ -50,4 +64,4 @@ export class User {
 
   @VersionColumn()
   version: number;
-} 
+}

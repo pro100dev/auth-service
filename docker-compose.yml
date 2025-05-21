@@ -16,16 +16,20 @@ services:
     volumes:
       - ./src/migrations:/app/src/migrations
 
-  postgres:
-    image: postgres:15-alpine
-    ports:
-      - "5432:5432"
-    environment:
-      - POSTGRES_USER=${DATABASE_USERNAME:-postgres}
-      - POSTGRES_PASSWORD=${DATABASE_PASSWORD:-postgres}
-      - POSTGRES_DB=${DATABASE_NAME:-auth_service}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+#  postgres:
+#    image: postgres:15-alpine
+#    ports:
+#      - "5432:5432"
+#    env_file:
+#      - .env
+#    environment:
+#      - POSTGRES_HOST=${DATABASE_HOST:-postgres}
+#      - POSTGRES_PORT=${DATABASE_PORT:-postgres}
+#      - POSTGRES_USER=${DATABASE_USERNAME:-postgres}
+#      - POSTGRES_PASSWORD=${DATABASE_PASSWORD:-postgres}
+#      - POSTGRES_DB=${DATABASE_NAME:-auth_service}
+#    volumes:
+#      - postgres_data:/var/lib/postgresql/data
 
   pgadmin:
     image: dpage/pgadmin4

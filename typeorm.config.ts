@@ -1,20 +1,30 @@
-import { DataSource } from 'typeorm';
+import { DataSource, DataSourceOptions } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
-import { config } from 'dotenv';
+import * as dotenv from 'dotenv';
+import * as path from 'path';
 
-config();
+dotenv.config();
+
+// function log_env(){
+//   console.log("DEBUG - environment")
+//
+//   console.log(process.env.DATABASE_HOST);
+//   console.log(process.env.DATABASE_PORT);
+// }
+//
+// log_env();
 
 const configService = new ConfigService();
 
 const isProduction = process.env.NODE_ENV === 'production';
 
-export default new DataSource({
+export default new DataSource( {
   type: 'postgres',
-  host: configService.get('DATABASE_HOST'),
-  port: configService.get('DATABASE_PORT'),
-  username: configService.get('DATABASE_USERNAME'),
-  password: configService.get('DATABASE_PASSWORD'),
-  database: configService.get('DATABASE_NAME'),
+  host: process.env.DATABASE_HOST,
+  port: process.env.DATABASE_PORT,
+  username: process.env.DATABASE_USERNAME,
+  password: process.env.DATABASE_PASSWORD,
+  database: process.env.DATABASE_NAME,
   entities: [process.env.NODE_ENV === 'production' ? 'dist/**/*.entity.js' : 'src/**/*.entity.ts'],
   migrations: [process.env.NODE_ENV === 'production' ? 'dist/migrations/*.js' : 'src/migrations/*.ts'],
   synchronize: false,
@@ -25,4 +35,4 @@ export default new DataSource({
     max: 20,
     idleTimeoutMillis: 30000,
   },
-}); 
+} as DataSourceOptions);

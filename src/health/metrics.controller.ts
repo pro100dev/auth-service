@@ -9,4 +9,4 @@ export class MetricsController {
   getMetrics() {
     return this.metricsService.getMetrics();
   }
-} 
+}

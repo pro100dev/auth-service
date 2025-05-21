@@ -32,18 +32,21 @@ import { HealthModule } from './health/health.module';
         });
 
         return {
-        type: 'postgres',
-        host: configService.get('DATABASE_HOST'),
-        port: configService.get('DATABASE_PORT'),
-        username: configService.get('DATABASE_USERNAME'),
-        password: configService.get('DATABASE_PASSWORD'),
-        database: configService.get('DATABASE_NAME'),
-        entities: [User],
-        synchronize: false,
-        logging: process.env.NODE_ENV !== 'production',
-          ssl: process.env.NODE_ENV === 'production' ? {
-            rejectUnauthorized: false
-          } : false,
+          type: 'postgres',
+          host: configService.get('DATABASE_HOST'),
+          port: configService.get('DATABASE_PORT'),
+          username: configService.get('DATABASE_USERNAME'),
+          password: configService.get('DATABASE_PASSWORD'),
+          database: configService.get('DATABASE_NAME'),
+          entities: [User],
+          synchronize: false,
+          logging: process.env.NODE_ENV !== 'production',
+          ssl:
+            process.env.NODE_ENV === 'production'
+              ? {
+                  rejectUnauthorized: false,
+                }
+              : false,
           retryAttempts: 3,
           retryDelay: 3000,
           keepConnectionAlive: true,
@@ -53,10 +56,12 @@ import { HealthModule } from './health/health.module';
     }),
     ThrottlerModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => [{
-        ttl: configService.get('THROTTLE_TTL', 60),
-        limit: configService.get('THROTTLE_LIMIT', 10),
-      }],
+      useFactory: (configService: ConfigService) => [
+        {
+          ttl: configService.get('THROTTLE_TTL', 60),
+          limit: configService.get('THROTTLE_LIMIT', 10),
+        },
+      ],
       inject: [ConfigService],
     }),
     LoggerModule,
@@ -66,4 +71,3 @@ import { HealthModule } from './health/health.module';
   ],
 })
 export class AppModule {}
-

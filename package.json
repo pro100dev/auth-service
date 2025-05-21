@@ -26,7 +26,11 @@
     "migration:create": "docker-compose exec auth-service npm run typeorm:create",
     "migration:generate": "docker-compose exec auth-service npm run typeorm:generate",
     "migration:run": "docker-compose exec auth-service npm run typeorm:run",
-    "migration:revert": "docker-compose exec auth-service npm run typeorm:revert"
+    "migration:revert": "docker-compose exec auth-service npm run typeorm:revert",
+
+    "typeorm:local:generate": "ts-node ./node_modules/typeorm/cli.js migration:generate src/migrations/AutoMigration -d ./typeorm.config.ts",
+    "typeorm:local:run": "ts-node ./node_modules/typeorm/cli.js migration:run -d ./typeorm.config.ts"
+
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",

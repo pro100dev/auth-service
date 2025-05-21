@@ -1,4 +1,12 @@
-import { Controller, Get, UseGuards, Req, Res, Post, Body } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  UseGuards,
+  Req,
+  Res,
+  Post,
+  Body,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
@@ -20,7 +28,7 @@ export class AuthController {
   @UseGuards(AuthGuard('google'))
   async googleAuthCallback(@Req() req, @Res() res: Response) {
     const tokens = await this.authService.generateTokens(req.user);
-    
+
     // In a real application, you might want to redirect to your frontend
     // with the tokens or set them as cookies
     res.json(tokens);
@@ -46,4 +54,4 @@ export class AuthController {
   getProfile(@Req() req) {
     return req.user;
   }
-} 
+}

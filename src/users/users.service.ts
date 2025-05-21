@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { User } from './entities/user.entity';
@@ -26,7 +30,7 @@ export class UsersService {
         throw new ConflictException('User with this email already exists');
       }
 
-    const user = this.usersRepository.create(userData);
+      const user = this.usersRepository.create(userData);
       const savedUser = await queryRunner.manager.save(user);
       await queryRunner.commitTransaction();
       return savedUser;
@@ -52,7 +56,10 @@ export class UsersService {
     const user = await this.usersRepository.findOne({
       where: { providerId, provider },
     });
-    if (!user) throw new NotFoundException(`User with provider ${provider} and ID ${providerId} not found`);
+    if (!user)
+      throw new NotFoundException(
+        `User with provider ${provider} and ID ${providerId} not found`,
+      );
     return user;
   }
 
@@ -86,7 +93,9 @@ export class UsersService {
       }
 
       await queryRunner.manager.update(User, id, userData);
-      const updatedUser = await queryRunner.manager.findOne(User, { where: { id } });
+      const updatedUser = await queryRunner.manager.findOne(User, {
+        where: { id },
+      });
       if (!updatedUser) {
         throw new NotFoundException(`User with ID ${id} not found`);
       }
@@ -99,4 +108,4 @@ export class UsersService {
       await queryRunner.release();
     }
   }
-} 
+}

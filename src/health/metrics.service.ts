@@ -16,7 +16,7 @@ export class MetricsService {
 
   getMetrics() {
     const uptime = performance.now() - this.startTime;
-    
+
     return {
       uptime: `${Math.floor(uptime / 1000)}s`,
       requests: this.requestCount,
@@ -24,4 +24,4 @@ export class MetricsService {
       cpu: process.cpuUsage(),
     };
   }
-} 
+}

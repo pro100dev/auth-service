@@ -9,4 +9,4 @@ import { MetricsService } from './metrics.service';
   controllers: [HealthController, MetricsController],
   providers: [MetricsService],
 })
-export class HealthModule {} 
+export class HealthModule {}

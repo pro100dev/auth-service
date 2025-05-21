@@ -1,0 +1,58 @@
+###
+POST {{host}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "t4e12s5t@examrrpl12221e1.com",
+  "password": "password123",
+  "nickname": "test22user"
+}
+
+###
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{
+    "email": "t4e12s5t@examrrpl12221e1.com",
+    "password": "password123"
+}
+
+###
+
+POST {{host}}/auth/refresh
+Content-Type: application/json
+
+{
+    "userId": "user-id-here",
+    "refreshToken": "refresh-token-here"
+}
+
+###
+GET {{host}}/auth/profile
+Authorization: Bearer your-access-token-here
+
+###
+GET {{host}}/auth/google
+
+
+###
+# Callback URL (этот URL будет вызван Google после аутентификации)
+GET {{host}}/auth/google/callback
+
+###
+GET {{host}}/auth/google/callback
+Authorization: Bearer your-access-token-here
+Content-Type: application/json, application/json
+
+{
+    "email": "test@example.com",
+    "password": "password123"
+  }&{
+    "userId": "user-id-here",
+    "refreshToken": "refresh-token-here"
+  }
+
+###
+
+
+
