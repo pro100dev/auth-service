@@ -5,32 +5,25 @@ import { ConfigService } from '@nestjs/config';
 import { UsersService } from '../../users/users.service';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
+export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
   constructor(
     private configService: ConfigService,
     private usersService: UsersService,
   ) {
-    const secret = configService.get<string>('JWT_SECRET');
-    if (!secret) {
-      throw new Error('JWT_SECRET is not defined');
-    }
-    console.log('JWT Strategy initialized with secret:', secret);
-    
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: secret,
+      secretOrKey: configService.get<string>('JWT_REFRESH_SECRET')!,
     });
   }
 
   async validate(payload: any) {
-    console.log('JWT validate payload:', payload);
+    console.log('JWT Refresh validate payload:', payload);
     const user = await this.usersService.findById(payload.id);
-    console.log('JWT validate user:', user);
+    console.log('JWT Refresh validate user:', user);
     
-    if (!user) {
-      console.log('User not found');
-      throw new UnauthorizedException('User not found');
+    if (!user || !user.refreshToken) {
+      throw new UnauthorizedException('Invalid refresh token');
     }
 
     if (user.version !== payload.version) {
@@ -40,7 +33,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       });
       throw new UnauthorizedException('Token is no longer valid');
     }
-    
-    return user;
+
+    return {
+      id: user.id,
+      email: user.email,
+      refreshToken: user.refreshToken,
+      version: user.version
+    };
   }
 } 

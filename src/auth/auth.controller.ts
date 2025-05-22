@@ -1,8 +1,9 @@
-import { Controller, Get, UseGuards, Req, Res, Post, Body } from '@nestjs/common';
+import { Controller, Get, UseGuards, Req, Res, Post, Body, UnauthorizedException } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 
@@ -37,8 +38,13 @@ export class AuthController {
   }
 
   @Post('refresh')
-  async refreshTokens(@Body() body: { userId: string; refreshToken: string }) {
-    return this.authService.refreshTokens(body.userId, body.refreshToken);
+  @UseGuards(JwtRefreshGuard)
+  async refreshTokens(@Req() req) {
+    const { id, refreshToken } = req.user;
+    if (!id || !refreshToken) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+    return this.authService.refreshTokens(id, refreshToken);
   }
 
   @Get('profile')

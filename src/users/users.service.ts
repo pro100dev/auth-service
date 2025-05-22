@@ -56,17 +56,36 @@ export class UsersService {
     return user;
   }
 
-  async updateRefreshToken(id: string, refreshToken: string): Promise<void> {
+  async updateRefreshToken(id: string, refreshToken: string, incrementVersion: boolean = true): Promise<void> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
     try {
-      await queryRunner.manager.update(User, id, { refreshToken });
+      const user = await queryRunner.manager.findOne(User, { where: { id } });
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      const updateData: any = {
+        refreshToken,
+        updatedAt: new Date()
+      };
+
+      if (incrementVersion) {
+        updateData.version = user.version + 1;
+      }
+
+      await queryRunner.manager.update(
+        User,
+        { id },
+        updateData
+      );
+
       await queryRunner.commitTransaction();
-    } catch (error) {
+    } catch (err) {
       await queryRunner.rollbackTransaction();
-      throw error;
+      throw err;
     } finally {
       await queryRunner.release();
     }

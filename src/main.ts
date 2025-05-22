@@ -4,6 +4,14 @@ import { AppModule } from './app.module';
 import helmet from 'helmet';
 
 async function bootstrap() {
+  // Временный вывод переменных окружения для диагностики
+  console.log('Environment variables:', {
+    JWT_SECRET: process.env.JWT_SECRET,
+    JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN,
+    JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET,
+    JWT_REFRESH_EXPIRES_IN: process.env.JWT_REFRESH_EXPIRES_IN
+  });
+
   const app = await NestFactory.create(AppModule);
   
   // Enable CORS

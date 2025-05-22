@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, Index, VersionColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, Index } from 'typeorm';
 import { IsEmail, IsString, MinLength, IsOptional, IsUrl } from 'class-validator';
 
 @Entity('users')
@@ -48,6 +48,6 @@ export class User {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @VersionColumn()
+  @Column({ default: 1 })
   version: number;
 } 

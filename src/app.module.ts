@@ -7,6 +7,8 @@ import { UsersModule } from './users/users.module';
 import { User } from './users/entities/user.entity';
 import { LoggerModule } from './logger/logger.module';
 import { HealthModule } from './health/health.module';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 
 @Module({
   imports: [
@@ -32,15 +34,15 @@ import { HealthModule } from './health/health.module';
         });
 
         return {
-        type: 'postgres',
-        host: configService.get('DATABASE_HOST'),
-        port: configService.get('DATABASE_PORT'),
-        username: configService.get('DATABASE_USERNAME'),
-        password: configService.get('DATABASE_PASSWORD'),
-        database: configService.get('DATABASE_NAME'),
-        entities: [User],
-        synchronize: false,
-        logging: process.env.NODE_ENV !== 'production',
+          type: 'postgres',
+          host: configService.get('DATABASE_HOST'),
+          port: configService.get('DATABASE_PORT'),
+          username: configService.get('DATABASE_USERNAME'),
+          password: configService.get('DATABASE_PASSWORD'),
+          database: configService.get('DATABASE_NAME'),
+          entities: [User],
+          synchronize: false,
+          logging: process.env.NODE_ENV !== 'production',
           ssl: process.env.NODE_ENV === 'production' ? {
             rejectUnauthorized: false
           } : false,
@@ -64,6 +66,8 @@ import { HealthModule } from './health/health.module';
     AuthModule,
     UsersModule,
   ],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}
 
