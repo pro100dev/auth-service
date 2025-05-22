@@ -116,6 +116,12 @@
         <div id="profileResponse" class="response"></div>
     </div>
 
+    <div class="card">
+        <h2>OAuth Login</h2>
+        <button onclick="window.loginWithGoogle()">Login with Google</button>
+        <div id="tokens" class="response"></div>
+    </div>
+
     <script>
         const API_BASE_URL = 'http://localhost:3000/auth';
 
@@ -179,6 +185,29 @@
             const data = await response.json();
             document.getElementById('profileResponse').textContent = JSON.stringify(data, null, 2);
         });
+
+        // --- OAuth Login logic ---
+        window.loginWithGoogle = function() {
+            window.location.href = 'http://localhost:3000/auth/google';
+        }
+
+        // Функция для отображения токенов после OAuth
+        function showTokens() {
+            const params = new URLSearchParams(window.location.search);
+            const accessToken = params.get('access_token');
+            const refreshToken = params.get('refresh_token');
+            if (accessToken || refreshToken) {
+                document.getElementById('tokens').innerHTML =
+                    `<b>Access Token:</b> <code>${accessToken || ''}</code><br>
+                     <b>Refresh Token:</b> <code>${refreshToken || ''}</code>`;
+                // Можно сохранить токены в localStorage
+                if (accessToken) localStorage.setItem('access_token', accessToken);
+                if (refreshToken) localStorage.setItem('refresh_token', refreshToken);
+                // Удалить токены из URL (чтобы не светились в адресной строке)
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        }
+        showTokens();
     </script>
 </body>
 </html>

@@ -48,12 +48,10 @@ export class UsersService {
     return this.usersRepository.findOne({ where: { email } });
   }
 
-  async findByProviderId(providerId: string, provider: string): Promise<User> {
-    const user = await this.usersRepository.findOne({
+  async findByProviderId(providerId: string, provider: string): Promise<User | null> {
+    return this.usersRepository.findOne({
       where: { providerId, provider },
     });
-    if (!user) throw new NotFoundException(`User with provider ${provider} and ID ${providerId} not found`);
-    return user;
   }
 
   async updateRefreshToken(id: string, refreshToken: string, incrementVersion: boolean = true): Promise<void> {
@@ -117,5 +115,22 @@ export class UsersService {
     } finally {
       await queryRunner.release();
     }
+  }
+
+  async createOAuthUser(data: {
+    provider: string;
+    providerId: string;
+    email: string;
+    nickname: string;
+    avatarUrl?: string;
+  }): Promise<User> {
+    const user = await this.create({
+      provider: data.provider,
+      providerId: data.providerId,
+      email: data.email,
+      nickname: data.nickname,
+      avatarUrl: data.avatarUrl,
+    });
+    return user;
   }
 } 

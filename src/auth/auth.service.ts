@@ -23,12 +23,12 @@ export class AuthService {
         return user;
       }
 
-      return await this.usersService.create({
-        email: profile.email,
-        nickname: profile.displayName || profile.username,
-        avatarUrl: profile.photos?.[0]?.value,
+      return await this.usersService.createOAuthUser({
         provider,
         providerId: profile.id,
+        email: profile.emails?.[0]?.value || profile.email,
+        nickname: profile.displayName || profile.username || 'NoName',
+        avatarUrl: profile.photos?.[0]?.value,
       });
     } catch (err) {
       throw err;

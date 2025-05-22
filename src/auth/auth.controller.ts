@@ -37,13 +37,13 @@ export class AuthController {
       const tokens = await this.authService.generateTokens(user);
       this.logger.log('Generated tokens successfully');
 
-      const redirectUrl = `${this.configService.get('FRONTEND_URL')}/oauth-callback?access_token=${tokens.accessToken}&refresh_token=${tokens.refreshToken}`;
+      const redirectUrl = `${this.configService.get('FRONTEND_URL')}?access_token=${tokens.accessToken}&refresh_token=${tokens.refreshToken}`;
       this.logger.log('Redirecting to:', redirectUrl);
 
       res.redirect(redirectUrl);
     } catch (error) {
       this.logger.error('Error in Google OAuth callback:', error);
-      const errorUrl = `${this.configService.get('FRONTEND_URL')}/oauth-callback?error=${encodeURIComponent(error.message)}`;
+      const errorUrl = `${this.configService.get('FRONTEND_URL')}?error=${encodeURIComponent(error.message)}`;
       res.redirect(errorUrl);
     }
   }
