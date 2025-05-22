@@ -14,7 +14,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (!secret) {
       throw new Error('JWT_SECRET is not defined');
     }
-    console.log('JWT Strategy initialized with secret:', secret);
     
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -24,20 +23,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-    console.log('JWT validate payload:', payload);
     const user = await this.usersService.findById(payload.id);
-    console.log('JWT validate user:', user);
     
     if (!user) {
-      console.log('User not found');
       throw new UnauthorizedException('User not found');
     }
 
     if (user.version !== payload.version) {
-      console.log('Version mismatch:', { 
-        tokenVersion: payload.version, 
-        userVersion: user.version 
-      });
       throw new UnauthorizedException('Token is no longer valid');
     }
     
