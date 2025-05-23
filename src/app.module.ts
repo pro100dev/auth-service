@@ -7,6 +7,8 @@ import { UsersModule } from './users/users.module';
 import { User } from './users/entities/user.entity';
 import { LoggerModule } from './logger/logger.module';
 import { HealthModule } from './health/health.module';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 
 @Module({
   imports: [
@@ -41,12 +43,9 @@ import { HealthModule } from './health/health.module';
           entities: [User],
           synchronize: false,
           logging: process.env.NODE_ENV !== 'production',
-          ssl:
-            process.env.NODE_ENV === 'production'
-              ? {
-                  rejectUnauthorized: false,
-                }
-              : false,
+          ssl: process.env.NODE_ENV === 'production' ? {
+            rejectUnauthorized: false
+          } : false,
           retryAttempts: 3,
           retryDelay: 3000,
           keepConnectionAlive: true,
@@ -56,12 +55,10 @@ import { HealthModule } from './health/health.module';
     }),
     ThrottlerModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => [
-        {
-          ttl: configService.get('THROTTLE_TTL', 60),
-          limit: configService.get('THROTTLE_LIMIT', 10),
-        },
-      ],
+      useFactory: (configService: ConfigService) => [{
+        ttl: configService.get('THROTTLE_TTL', 60),
+        limit: configService.get('THROTTLE_LIMIT', 10),
+      }],
       inject: [ConfigService],
     }),
     LoggerModule,
@@ -69,5 +66,7 @@ import { HealthModule } from './health/health.module';
     AuthModule,
     UsersModule,
   ],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}
