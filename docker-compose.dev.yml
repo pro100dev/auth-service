@@ -4,7 +4,7 @@ services:
   auth-service-dev:
     build:
       context: .
-      target: production
+      target: dev
     ports:
       - "3000:3000"
     env_file:
@@ -21,6 +21,9 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+    volumes:
+      - .:/app
+      - /app/node_modules
 
   postgres-dev:
     image: postgres:15-alpine
@@ -59,8 +62,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./nginx/conf.d/dev.conf:/etc/nginx/conf.d/default.conf
-      - ./nginx/ssl:/etc/nginx/ssl
+      - ./nginx/conf.d/dev.conf:/etc/nginx/conf.d/dev.conf
       - ./index.html:/usr/share/nginx/html/index.html
     depends_on:
       - auth-service-dev

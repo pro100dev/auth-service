@@ -18,7 +18,7 @@ export default new DataSource({
   entities: [process.env.NODE_ENV === 'prod' ? 'dist/**/*.entity.js' : 'src/**/*.entity.ts'],
   migrations: [process.env.NODE_ENV === 'prod' ? 'dist/migrations/*.js' : 'src/migrations/*.ts'],
   synchronize: false,
-  ssl: isProduction ? { rejectUnauthorized: false } : false,
+  ssl: false,
   logging: !isProduction,
   extra: {
     connectionTimeoutMillis: 3000,

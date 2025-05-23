@@ -9,13 +9,13 @@ echo "PostgreSQL started"
 
 # Run migrations
 echo "Running migrations..."
-npm run typeorm migration:run
+npm run typeorm migration:run -- -d typeorm.config.ts
 
 # Start the application
 echo "Starting the application..."
 
 if [ "$NODE_ENV" = "prod" ]; then
-  node dist/main
+  node dist/src/main
 else
   npm run start:dev
 fi 
