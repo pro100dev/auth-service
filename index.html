@@ -123,7 +123,7 @@
     </div>
 
     <script>
-        const API_BASE_URL = 'http://localhost:8080/auth';
+        const API_BASE_URL = 'http://dev.pulsarrift.net:8080/auth';
 
         // Register
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
@@ -188,7 +188,7 @@
 
         // --- OAuth Login logic ---
         window.loginWithGoogle = function() {
-            window.location.href = 'http://localhost:8080/auth/google';
+            window.location.href = 'http://dev.pulsarrift.net:8080/auth/google';
         }
 
         // Функция для отображения токенов после OAuth
