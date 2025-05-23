@@ -1,37 +1,37 @@
-import {
-  Controller,
-  Get,
-  UseGuards,
-  Req,
-  Res,
-  Post,
-  Body,
-} from '@nestjs/common';
+import { Controller, Get, UseGuards, Req, Res, Post, Body, UnauthorizedException } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { ConfigService } from '@nestjs/config';
+import { User } from '../users/entities/user.entity';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly configService: ConfigService
+  ) {}
 
   @Get('google')
   @UseGuards(AuthGuard('google'))
-  async googleAuth() {
-    // Guard redirects to Google
-  }
+  async googleAuth() {}
 
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
-  async googleAuthCallback(@Req() req, @Res() res: Response) {
-    const tokens = await this.authService.generateTokens(req.user);
-
-    // In a real application, you might want to redirect to your frontend
-    // with the tokens or set them as cookies
-    res.json(tokens);
+  async googleAuthCallback(@Req() req: any, @Res() res: Response) {
+    try {
+      const user = req.user as User;
+      const tokens = await this.authService.generateTokens(user);
+      const redirectUrl = `${this.configService.get('FRONTEND_URL')}?access_token=${tokens.accessToken}&refresh_token=${tokens.refreshToken}`;
+      res.redirect(redirectUrl);
+    } catch (error) {
+      const errorUrl = `${this.configService.get('FRONTEND_URL')}?error=${encodeURIComponent(error.message)}`;
+      res.redirect(errorUrl);
+    }
   }
 
   @Post('register')
@@ -45,8 +45,13 @@ export class AuthController {
   }
 
   @Post('refresh')
-  async refreshTokens(@Body() body: { userId: string; refreshToken: string }) {
-    return this.authService.refreshTokens(body.userId, body.refreshToken);
+  @UseGuards(JwtRefreshGuard)
+  async refreshTokens(@Req() req) {
+    const { id, refreshToken } = req.user;
+    if (!id || !refreshToken) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+    return this.authService.refreshTokens(id, refreshToken);
   }
 
   @Get('profile')
@@ -54,4 +59,4 @@ export class AuthController {
   getProfile(@Req() req) {
     return req.user;
   }
-}
+} 

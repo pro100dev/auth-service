@@ -13,13 +13,14 @@ RUN npm run build && \
     ls -la dist/
 
 # Development stage
-FROM node:20-slim AS development
+FROM node:20-slim AS dev
 
 WORKDIR /app
 
 COPY package*.json ./
 
 RUN npm install && \
+    npm install -g @nestjs/cli && \
     apt-get update && \
     apt-get install -y netcat-traditional procps && \
     rm -rf /var/lib/apt/lists/*
@@ -30,10 +31,10 @@ RUN chmod +x entrypoint.sh
 
 EXPOSE 3000
 
-CMD ["./entrypoint.sh"]
+CMD ["/bin/sh", "./entrypoint.sh"]
 
 # Production stage
-FROM node:20-slim AS production
+FROM node:20-slim AS prod
 
 WORKDIR /app
 
@@ -44,10 +45,11 @@ RUN npm install --only=production && \
     rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /app/dist ./dist
-COPY .env ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/typeorm.config.ts ./
 COPY entrypoint.sh ./
 RUN chmod +x entrypoint.sh
 
 EXPOSE 3000
 
-CMD ["./entrypoint.sh"] 
+CMD ["/bin/sh", "./entrypoint.sh"] 

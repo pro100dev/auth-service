@@ -19,19 +19,6 @@ import { AppService } from './app.service';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => {
-        // Debug: Log all environment variables
-        console.log('Environment Variables:', {
-          NODE_ENV: process.env.NODE_ENV,
-          DATABASE_HOST: configService.get('DATABASE_HOST'),
-          DATABASE_PORT: configService.get('DATABASE_PORT'),
-          DATABASE_USERNAME: configService.get('DATABASE_USERNAME'),
-          DATABASE_PASSWORD: configService.get('DATABASE_PASSWORD'),
-          DATABASE_NAME: configService.get('DATABASE_NAME'),
-          JWT_SECRET: configService.get('JWT_SECRET'),
-          JWT_EXPIRES_IN: configService.get('JWT_EXPIRES_IN'),
-          JWT_REFRESH_SECRET: configService.get('JWT_REFRESH_SECRET'),
-          JWT_REFRESH_EXPIRES_IN: configService.get('JWT_REFRESH_EXPIRES_IN'),
-        });
 
         return {
           type: 'postgres',
@@ -42,8 +29,8 @@ import { AppService } from './app.service';
           database: configService.get('DATABASE_NAME'),
           entities: [User],
           synchronize: false,
-          logging: process.env.NODE_ENV !== 'production',
-          ssl: process.env.NODE_ENV === 'production' ? {
+          logging: process.env.NODE_ENV !== 'prod',
+          ssl: process.env.NODE_ENV === 'prod' ? {
             rejectUnauthorized: false
           } : false,
           retryAttempts: 3,
@@ -70,3 +57,4 @@ import { AppService } from './app.service';
   providers: [AppService],
 })
 export class AppModule {}
+

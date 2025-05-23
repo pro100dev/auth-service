@@ -8,7 +8,10 @@ export class LoggerService implements NestLoggerService {
 
   constructor() {
     this.logger = createLogger({
-      format: format.combine(format.timestamp(), format.json()),
+      format: format.combine(
+        format.timestamp(),
+        format.json(),
+      ),
       transports: [
         new transports.DailyRotateFile({
           filename: 'logs/error-%DATE%.log',
@@ -24,12 +27,13 @@ export class LoggerService implements NestLoggerService {
       ],
     });
 
-    if (process.env.NODE_ENV !== 'production') {
-      this.logger.add(
-        new transports.Console({
-          format: format.combine(format.colorize(), format.simple()),
-        }),
-      );
+    if (process.env.NODE_ENV !== 'prod') {
+      this.logger.add(new transports.Console({
+        format: format.combine(
+          format.colorize(),
+          format.simple(),
+        ),
+      }));
     }
   }
 
@@ -52,4 +56,4 @@ export class LoggerService implements NestLoggerService {
   verbose(message: string, context?: string) {
     this.logger.verbose(message, { context });
   }
-}
+} 

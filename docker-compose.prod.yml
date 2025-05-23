@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  auth-service-prod:
+    build:
+      context: .
+      target: prod
+    env_file:
+      - .env.prod
+    environment:
+      - NODE_ENV=prod
+    depends_on:
+      - postgres-prod
+    networks:
+      - prod-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  postgres-prod:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=${DATABASE_USERNAME}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - POSTGRES_DB=${DATABASE_NAME}
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data
+    networks:
+      - prod-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USERNAME}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  nginx-prod:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d/prod.conf:/etc/nginx/conf.d/prod.conf
+      - ./nginx/ssl:/etc/nginx/ssl
+      - ./index.html:/usr/share/nginx/html/index.html
+    depends_on:
+      - auth-service-prod
+    networks:
+      - prod-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  prod-network:
+    name: auth-service-prod-network
+    driver: bridge
+
+volumes:
+  postgres_data_prod:
+    name: auth-service-postgres-data-prod 

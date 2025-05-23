@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  ConflictException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { User } from './entities/user.entity';
@@ -30,7 +26,7 @@ export class UsersService {
         throw new ConflictException('User with this email already exists');
       }
 
-      const user = this.usersRepository.create(userData);
+    const user = this.usersRepository.create(userData);
       const savedUser = await queryRunner.manager.save(user);
       await queryRunner.commitTransaction();
       return savedUser;
@@ -52,28 +48,42 @@ export class UsersService {
     return this.usersRepository.findOne({ where: { email } });
   }
 
-  async findByProviderId(providerId: string, provider: string): Promise<User> {
-    const user = await this.usersRepository.findOne({
+  async findByProviderId(providerId: string, provider: string): Promise<User | null> {
+    return this.usersRepository.findOne({
       where: { providerId, provider },
     });
-    if (!user)
-      throw new NotFoundException(
-        `User with provider ${provider} and ID ${providerId} not found`,
-      );
-    return user;
   }
 
-  async updateRefreshToken(id: string, refreshToken: string): Promise<void> {
+  async updateRefreshToken(id: string, refreshToken: string, incrementVersion: boolean = true): Promise<void> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
     try {
-      await queryRunner.manager.update(User, id, { refreshToken });
+      const user = await queryRunner.manager.findOne(User, { where: { id } });
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      const updateData: any = {
+        refreshToken,
+        updatedAt: new Date()
+      };
+
+      if (incrementVersion) {
+        updateData.version = user.version + 1;
+      }
+
+      await queryRunner.manager.update(
+        User,
+        { id },
+        updateData
+      );
+
       await queryRunner.commitTransaction();
-    } catch (error) {
+    } catch (err) {
       await queryRunner.rollbackTransaction();
-      throw error;
+      throw err;
     } finally {
       await queryRunner.release();
     }
@@ -93,9 +103,7 @@ export class UsersService {
       }
 
       await queryRunner.manager.update(User, id, userData);
-      const updatedUser = await queryRunner.manager.findOne(User, {
-        where: { id },
-      });
+      const updatedUser = await queryRunner.manager.findOne(User, { where: { id } });
       if (!updatedUser) {
         throw new NotFoundException(`User with ID ${id} not found`);
       }
@@ -108,4 +116,21 @@ export class UsersService {
       await queryRunner.release();
     }
   }
-}
+
+  async createOAuthUser(data: {
+    provider: string;
+    providerId: string;
+    email: string;
+    nickname: string;
+    avatarUrl?: string;
+  }): Promise<User> {
+    const user = await this.create({
+      provider: data.provider,
+      providerId: data.providerId,
+      email: data.email,
+      nickname: data.nickname,
+      avatarUrl: data.avatarUrl,
+    });
+    return user;
+  }
+} 

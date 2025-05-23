@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auth Service Test Interface</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .card {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            word-break: break-all;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .response {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+    <h1>Auth Service Test Interface</h1>
+
+    <div class="card">
+        <h2>Register</h2>
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="registerEmail">Email:</label>
+                <input type="email" id="registerEmail" required>
+            </div>
+            <div class="form-group">
+                <label for="registerPassword">Password:</label>
+                <input type="password" id="registerPassword" required>
+            </div>
+            <div class="form-group">
+                <label for="registerNickname">Nickname:</label>
+                <input type="text" id="registerNickname" required>
+            </div>
+            <button type="submit">Register</button>
+        </form>
+        <div id="registerResponse" class="response"></div>
+    </div>
+
+    <div class="card">
+        <h2>Login</h2>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="loginEmail">Email:</label>
+                <input type="email" id="loginEmail" required>
+            </div>
+            <div class="form-group">
+                <label for="loginPassword">Password:</label>
+                <input type="password" id="loginPassword" required>
+            </div>
+            <button type="submit">Login</button>
+        </form>
+        <div id="loginResponse" class="response"></div>
+    </div>
+
+    <div class="card">
+        <h2>Refresh Token</h2>
+        <form id="refreshForm">
+            <div class="form-group">
+                <label for="refreshToken">Refresh Token:</label>
+                <input type="text" id="refreshToken" required>
+            </div>
+            <button type="submit">Refresh Token</button>
+        </form>
+        <div id="refreshResponse" class="response"></div>
+    </div>
+
+    <div class="card">
+        <h2>Get Profile</h2>
+        <form id="profileForm">
+            <div class="form-group">
+                <label for="profileToken">Access Token:</label>
+                <input type="text" id="profileToken" required>
+            </div>
+            <button type="submit">Get Profile</button>
+        </form>
+        <div id="profileResponse" class="response"></div>
+    </div>
+
+    <div class="card">
+        <h2>OAuth Login</h2>
+        <button onclick="window.loginWithGoogle()">Login with Google</button>
+        <div id="tokens" class="response"></div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://dev.pulsarrift.net:8080/auth';
+
+        // Register
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const response = await fetch(`${API_BASE_URL}/register`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: document.getElementById('registerEmail').value,
+                    password: document.getElementById('registerPassword').value,
+                    nickname: document.getElementById('registerNickname').value,
+                }),
+            });
+            const data = await response.json();
+            document.getElementById('registerResponse').textContent = JSON.stringify(data, null, 2);
+        });
+
+        // Login
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const response = await fetch(`${API_BASE_URL}/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: document.getElementById('loginEmail').value,
+                    password: document.getElementById('loginPassword').value,
+                }),
+            });
+            const data = await response.json();
+            document.getElementById('loginResponse').textContent = JSON.stringify(data, null, 2);
+        });
+
+        // Refresh Token
+        document.getElementById('refreshForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const response = await fetch(`${API_BASE_URL}/refresh`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${document.getElementById('refreshToken').value}`,
+                },
+            });
+            const data = await response.json();
+            document.getElementById('refreshResponse').textContent = JSON.stringify(data, null, 2);
+        });
+
+        // Get Profile
+        document.getElementById('profileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const response = await fetch(`${API_BASE_URL}/profile`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${document.getElementById('profileToken').value}`,
+                },
+            });
+            const data = await response.json();
+            document.getElementById('profileResponse').textContent = JSON.stringify(data, null, 2);
+        });
+
+        // --- OAuth Login logic ---
+        window.loginWithGoogle = function() {
+            window.location.href = 'http://dev.pulsarrift.net:8080/auth/google';
+        }
+
+        // Функция для отображения токенов после OAuth
+        function showTokens() {
+            const params = new URLSearchParams(window.location.search);
+            const accessToken = params.get('access_token');
+            const refreshToken = params.get('refresh_token');
+            if (accessToken || refreshToken) {
+                document.getElementById('tokens').innerHTML =
+                    `<b>Access Token:</b> <code>${accessToken || ''}</code><br>
+                     <b>Refresh Token:</b> <code>${refreshToken || ''}</code>`;
+                // Можно сохранить токены в localStorage
+                if (accessToken) localStorage.setItem('access_token', accessToken);
+                if (refreshToken) localStorage.setItem('refresh_token', refreshToken);
+                // Удалить токены из URL (чтобы не светились в адресной строке)
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        }
+        showTokens();
+    </script>
+</body>
+</html>
