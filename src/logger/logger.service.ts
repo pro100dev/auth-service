@@ -27,7 +27,7 @@ export class LoggerService implements NestLoggerService {
       ],
     });
 
-    if (process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV !== 'prod') {
       this.logger.add(new transports.Console({
         format: format.combine(
           format.colorize(),

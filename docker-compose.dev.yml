@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  auth-service-dev:
+    build:
+      context: .
+      target: production
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.dev
+    environment:
+      - NODE_ENV=dev
+    depends_on:
+      - postgres-dev
+    networks:
+      - dev-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  postgres-dev:
+    image: postgres:15-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=${DATABASE_USERNAME:-postgres}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD:-postgres}
+      - POSTGRES_DB=${DATABASE_NAME:-auth_service}
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+    networks:
+      - dev-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USERNAME:-postgres}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  pgadmin:
+    image: dpage/pgadmin4
+    ports:
+      - "5050:80"
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL:-admin@admin.com}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD:-admin}
+    depends_on:
+      - postgres-dev
+    networks:
+      - dev-network
+    restart: unless-stopped
+
+  nginx-dev:
+    image: nginx:alpine
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./nginx/conf.d/dev.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/ssl:/etc/nginx/ssl
+      - ./index.html:/usr/share/nginx/html/index.html
+    depends_on:
+      - auth-service-dev
+    networks:
+      - dev-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  dev-network:
+    name: auth-service-dev-network
+    driver: bridge
+
+volumes:
+  postgres_data_dev:
+    name: auth-service-postgres-data-dev 

@@ -44,7 +44,6 @@ RUN npm install --only=production && \
     rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /app/dist ./dist
-COPY .env ./
 COPY entrypoint.sh ./
 RUN chmod +x entrypoint.sh
 

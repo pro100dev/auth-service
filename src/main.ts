@@ -8,12 +8,8 @@ async function bootstrap() {
   
   // Enable CORS with specific configuration
   app.enableCors({
-    origin: ['http://localhost:3000', 'http://localhost:8080', 'http://127.0.0.1:8080'],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+    origin: true,
     credentials: true,
-    preflightContinue: false,
-    optionsSuccessStatus: 204
   });
   
   // Enable security headers
@@ -28,6 +24,6 @@ async function bootstrap() {
     transform: true,
   }));
 
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(process.env.APP_PORT ?? 3000);
 }
 bootstrap();

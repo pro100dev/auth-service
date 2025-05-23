@@ -4,13 +4,13 @@ services:
   auth-service:
     build:
       context: .
-      target: ${NODE_ENV:-development}
+      target: ${NODE_ENV:-dev}
     ports:
       - "3000:3000"
     env_file:
       - .env
     environment:
-      - NODE_ENV=${NODE_ENV:-development}
+      - NODE_ENV=${NODE_ENV:-dev}
     depends_on:
       - postgres
     volumes:

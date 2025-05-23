@@ -1,20 +1,21 @@
 #!/bin/sh
 
-# Wait for postgres to be ready
+# Wait for postgres
 echo "Waiting for postgres..."
-while ! nc -z postgres 5432; do
+while ! nc -z $DATABASE_HOST $DATABASE_PORT; do
   sleep 0.1
 done
 echo "PostgreSQL started"
 
 # Run migrations
 echo "Running migrations..."
-npm run migration:run
+npm run typeorm migration:run
 
 # Start the application
-echo "Starting application..."
-if [ "$NODE_ENV" = "production" ]; then
-  npm run start:prod
+echo "Starting the application..."
+
+if [ "$NODE_ENV" = "prod" ]; then
+  node dist/main
 else
   npm run start:dev
 fi 

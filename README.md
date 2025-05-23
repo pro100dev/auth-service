@@ -44,7 +44,7 @@ GOOGLE_CALLBACK_URL=http://localhost:3000/auth/google/callback
 
 # Application
 PORT=3000
-NODE_ENV=development
+NODE_ENV=dev
 ```
 
 4. Run migrations:
@@ -78,7 +78,7 @@ cd auth-service
 docker-compose up --build
 
 # Production mode
-NODE_ENV=production docker-compose up --build
+NODE_ENV=prod docker-compose up --build
 ```
 
 The application will be available at: http://localhost:3000

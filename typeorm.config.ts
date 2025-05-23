@@ -6,7 +6,7 @@ config();
 
 const configService = new ConfigService();
 
-const isProduction = process.env.NODE_ENV === 'production';
+const isProduction = process.env.NODE_ENV === 'prod';
 
 export default new DataSource({
   type: 'postgres',
@@ -15,8 +15,8 @@ export default new DataSource({
   username: configService.get('DATABASE_USERNAME'),
   password: configService.get('DATABASE_PASSWORD'),
   database: configService.get('DATABASE_NAME'),
-  entities: [process.env.NODE_ENV === 'production' ? 'dist/**/*.entity.js' : 'src/**/*.entity.ts'],
-  migrations: [process.env.NODE_ENV === 'production' ? 'dist/migrations/*.js' : 'src/migrations/*.ts'],
+  entities: [process.env.NODE_ENV === 'prod' ? 'dist/**/*.entity.js' : 'src/**/*.entity.ts'],
+  migrations: [process.env.NODE_ENV === 'prod' ? 'dist/migrations/*.js' : 'src/migrations/*.ts'],
   synchronize: false,
   ssl: isProduction ? { rejectUnauthorized: false } : false,
   logging: !isProduction,
