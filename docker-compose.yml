@@ -16,6 +16,8 @@ services:
     volumes:
       - .:/app
     command: npm run start:dev
+    networks:
+      - app-network
 
   postgres:
     image: postgres:15-alpine
@@ -27,6 +29,8 @@ services:
       - POSTGRES_DB=${DATABASE_NAME:-auth_service}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
 
   pgadmin:
     image: dpage/pgadmin4
@@ -37,6 +41,25 @@ services:
       - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD:-admin}
     depends_on:
       - postgres
+    networks:
+      - app-network
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/ssl:/etc/nginx/ssl
+    depends_on:
+      - auth-service
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
 
 volumes:
   postgres_data: 
