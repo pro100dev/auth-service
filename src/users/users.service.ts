@@ -54,7 +54,7 @@ export class UsersService {
     });
   }
 
-  async updateRefreshToken(id: string, refreshToken: string, incrementVersion: boolean = true): Promise<void> {
+  async updateRefreshToken(id: string, refreshToken: string | null, incrementVersion: boolean = true): Promise<void> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
