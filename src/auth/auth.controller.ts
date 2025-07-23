@@ -10,6 +10,8 @@ import { ConfigService } from '@nestjs/config';
 import { User } from '../users/entities/user.entity';
 import { log } from 'console';
 import { UsersService } from 'src/users/users.service';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 
 @Controller('auth')
 export class AuthController {
@@ -18,6 +20,13 @@ export class AuthController {
     private readonly usersService: UsersService,
     private readonly configService: ConfigService
   ) { }
+
+  @Get('success')
+  getAuthSuccess(@Res() res: Response) {
+    const html = readFileSync(join(process.cwd(), 'static/auth-success.html'), 'utf-8');
+    res.setHeader('Content-Type', 'text/html');
+    res.send(html);
+  }
 
   @Get('google')
   @UseGuards(AuthGuard('google'))
@@ -29,13 +38,27 @@ export class AuthController {
     try {
       const user = req.user as User;
       const tokens = await this.authService.generateTokens(user);
-      const redirectUrl = `http://localhost:3032?access_token=${tokens.accessToken}&refresh_token=${tokens.refreshToken}`;
-      res.redirect(redirectUrl);
+
+      res.cookie('accessToken', tokens.accessToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict',
+        maxAge: 60 * 60 * 1000,
+      });
+
+      res.cookie('refreshToken', tokens.refreshToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+
+      res.redirect(`${this.configService.get('FRONTEND_URL')}/?auth_success=true`);
     } catch (error) {
-      const errorUrl = `${this.configService.get('FRONTEND_URL')}?error=${encodeURIComponent(error.message)}`;
-      res.redirect(errorUrl);
+      res.redirect(`${this.configService.get('FRONTEND_URL')}?auth_error=true`);
     }
   }
+
 
   @Post('register')
   async register(@Body() registerDto: RegisterDto) {
